@@ -53,4 +53,14 @@ num   pkts bytes target     prot opt in     out     source               destina
 4      114  7188 DNAT       tcp  --  !docker0 *       0.0.0.0/0            0.0.0.0/0            tcp dpt:443 to:172.17.0.2:443
 ··· ···
 ```
-然后执行`iptables -t nat -D POSTROUTING 6`和`iptables -t nat -D DOCKER 3`删除对应映射条目。
+然后执行`iptables -t nat -D POSTROUTING 6`和`iptables -t nat -D DOCKER 3`删除对应映射条目。 
+
+---------
+
+附：服务器开放对应端口命令
+```bash
+# tcp
+iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
+# udp
+iptables -I INPUT -m state --state NEW -m udp -p udp --dport 33233 -j ACCEPT
+```
