@@ -53,4 +53,4 @@ num   pkts bytes target     prot opt in     out     source               destina
 4      114  7188 DNAT       tcp  --  !docker0 *       0.0.0.0/0            0.0.0.0/0            tcp dpt:443 to:172.17.0.2:443
 ··· ···
 ```
-然后执行`iptables -t nat -D POSTROUTING 6`和`iptables -t nat -D DOCKER 3`删除对应映射条目，其中 filter 为表名，DOCKER 为链名，2为所要删除的行号。
+然后执行`iptables -t nat -D POSTROUTING 6`和`iptables -t nat -D DOCKER 3`删除对应映射条目。
