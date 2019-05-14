@@ -68,7 +68,7 @@ iptables -I INPUT -m state --state NEW -m udp -p udp --dport 33233 -j ACCEPT
 自动映射容器端口脚本，使用方法
 下载脚本
 ```bash
-wget -N -no-check-certificate https://raw.githubusercontent.com/whunt1/docker_manage_port/master/autocheckdockerport.sh
+wget -N --no-check-certificate https://raw.githubusercontent.com/whunt1/docker_manage_port/master/autocheckdockerport.sh
 ```
 然后执行`vim autocheckdockerport.sh`编辑好脚本，编辑内容如下，其中 "172.17.0.2:443" 为你要检测的容器IP及端口，iptables配置参见上文
 ```
