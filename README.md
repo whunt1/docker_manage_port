@@ -72,13 +72,13 @@ wget -N --no-check-certificate https://raw.githubusercontent.com/whunt1/docker_m
 ```
 然后执行`vim autocheckdockerport.sh`编辑好脚本，编辑内容如下，其中 "172.17.0.2:443" 为你要检测的容器IP及端口，iptables配置参见上文
 ```
-RULER1=$(iptables -t nat -nvL --line-number | grep "172.17.0.2:443" | awk '{print $1}')
+RULER1=$(/usr/sbin/iptables -t nat -nvL --line-number | grep "172.17.0.2:443" | awk '{print $1}')
 echo ${RULER1}
 if [[ -z $RULER1 ]]; then
  echo "rebuild"
- iptables -t filter -A DOCKER -d 172.17.0.2/32 ! -i docker0 -o docker0 -p tcp -m tcp --dport 443 -j ACCEPT
- iptables -t nat -A POSTROUTING -s 172.17.0.2/32 -d 172.17.0.2/32 -p tcp -m tcp --dport 443 -j MASQUERADE
- iptables -t nat -A DOCKER ! -i docker0 -p tcp -m tcp --dport 443 -j DNAT --to-destination 172.17.0.2:443
+ /usr/sbin/iptables -t filter -A DOCKER -d 172.17.0.2/32 ! -i docker0 -o docker0 -p tcp -m tcp --dport 443 -j ACCEPT
+ /usr/sbin/iptables -t nat -A POSTROUTING -s 172.17.0.2/32 -d 172.17.0.2/32 -p tcp -m tcp --dport 443 -j MASQUERADE
+ /usr/sbin/iptables -t nat -A DOCKER ! -i docker0 -p tcp -m tcp --dport 443 -j DNAT --to-destination 172.17.0.2:443
 fi
 ```
 最后执行`chmod +x autocheckdockerport.sh`修改脚本权限，并执行`crontab -e`设定定时任务如下，注意修改为你存放脚本的位置
