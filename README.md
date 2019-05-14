@@ -82,4 +82,6 @@ if [[ -z $RULER1 ]]; then
 fi
 ```
 最后执行`chmod +x autocheckdockerport.sh`修改脚本权限，并执行`crontab -e`设定定时任务如下，注意修改为你存放脚本的位置
-> * * * * * /bin/bash /root/autocheckdockerport.sh
+```bash
+* * * * * /bin/bash /root/autocheckdockerport.sh
+```
