@@ -1,5 +1,14 @@
 # Docker 增加端口映射与管理端口转发教程
 
+> CentOS 7用户建议先关闭自带的 firewalld 并换成 iptables   
+> ```bash
+> systemctl stop firewalld
+> systemctl disable firewalld
+> yum install -y iptables iptables-services
+> systemctl start iptables
+> systemctl enable iptables
+> ```
+
 首先执行`docker inspect $container | grep IPAddress`查看运行中的容器所分配的IP，其中 $container 为你容器的名称或者 ID（运行`docker ps -a`可以看到所有运行中的容器列表），运行结果如下：
 ```bash
 [root@localhost ~]# docker inspect ssr_ssh | grep IPAddress
@@ -7,7 +16,7 @@
 "IPAddress": "172.17.0.2",
 "IPAddress": "172.17.0.2",
 ```
-然后执行如下命令增加端口转发映射，需要把IP和端口改成你需要的，其中`172.17.0.2`处为你的容器分配的IP，注意前两行`--dport 443`处为你容器内所要使用的端口，最后一行`--dport 8022`处为你宿主机想要对外开放到公网的端口，`--to-destination 172.17.0.2:22`处则填写你的容器IP和端口，示例如下：
+然后执行如下命令增加端口转发映射，需要把IP和端口改成你需要的，其中`172.17.0.2`处为你的容器分配的IP，注意前两行`--dport 22`处为你容器内所要使用的端口，最后一行`--dport 8022`处为你宿主机想要对外开放到公网的端口，`--to-destination 172.17.0.2:22`处则填写你的容器IP和端口，示例如下：
 ```bash
 iptables -t filter -A DOCKER -d 172.17.0.2/32 ! -i docker0 -o docker0 -p tcp -m tcp --dport 22 -j ACCEPT
 iptables -t nat -A POSTROUTING -s 172.17.0.2/32 -d 172.17.0.2/32 -p tcp -m tcp --dport 22 -j MASQUERADE
