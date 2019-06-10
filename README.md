@@ -81,7 +81,7 @@ wget -N --no-check-certificate https://raw.githubusercontent.com/whunt1/docker_m
 ```
 然后执行`vim autocheckdockerport.sh`编辑好脚本，编辑内容如下，其中 "172.17.0.2:443" 为你要检测的容器IP及端口，iptables配置参见上文
 ```
-RULER1=$(/usr/sbin/iptables -t nat -nvL --line-number | grep "172.17.0.2:443" | awk '{print $1}')
+RULER1=$(/usr/sbin/iptables -t filter -nvL DOCKER --line-number | grep "dpt:443" | awk '{print $1}')
 echo ${RULER1}
 if [[ -z $RULER1 ]]; then
  echo "rebuild"
