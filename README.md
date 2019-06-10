@@ -79,16 +79,25 @@ iptables -I INPUT -m state --state NEW -m udp -p udp --dport 33233 -j ACCEPT
 ```bash
 wget -N --no-check-certificate https://raw.githubusercontent.com/whunt1/docker_manage_port/master/autocheckdockerport.sh
 ```
-然后执行`vim autocheckdockerport.sh`编辑好脚本，编辑内容如下，其中 "172.17.0.2:443" 为你要检测的容器IP及端口，iptables配置参见上文
+然后执行`vim autocheckdockerport.sh`编辑好脚本，编辑内容如下，其中 "172.17.0.2:443" 为你要检测的容器IP及端口，iptables配置参见上文(MASQUERADE不要写在脚本中，请手动配置)
 ```
+#!/bin/bash
+# manual run
+# /usr/sbin/iptables -t nat -A POSTROUTING -s 172.17.0.2/32 -d 172.17.0.2/32 -p tcp -m tcp --dport 443 -j MASQUERADE
+# /usr/sbin/iptables -t nat -A POSTROUTING -s 172.17.0.2/32 -d 172.17.0.2/32 -p udp -m udp --dport 443 -j MASQUERADE
 RULER1=$(/usr/sbin/iptables -t filter -nvL DOCKER --line-number | grep "dpt:443" | awk '{print $1}')
+build_iptables(){
+ /usr/sbin/iptables -t filter -A FORWARD -d 172.17.0.0/24 -i docker0 -j ACCEPT
+ /usr/sbin/iptables -t filter -A DOCKER -d 172.17.0.2/32 ! -i docker0 -o docker0 -p tcp -m tcp --dport 443 -j ACCEPT
+ /usr/sbin/iptables -t nat -A DOCKER ! -i docker0 -p tcp -m tcp --dport 443 -j DNAT --to-destination 172.17.0.2:443
+ /usr/sbin/iptables -t filter -A DOCKER -d 172.17.0.2/32 ! -i docker0 -o docker0 -p udp -m udp --dport 443 -j ACCEPT
+ /usr/sbin/iptables -t nat -A DOCKER ! -i docker0 -p udp -m udp --dport 443 -j DNAT --to-destination 172.17.0.2:443
+}
 echo ${RULER1}
 if [[ -z $RULER1 ]]; then
  echo "rebuild"
- /usr/sbin/iptables -t filter -A DOCKER -d 172.17.0.2/32 ! -i docker0 -o docker0 -p tcp -m tcp --dport 443 -j ACCEPT
- /usr/sbin/iptables -t nat -A POSTROUTING -s 172.17.0.2/32 -d 172.17.0.2/32 -p tcp -m tcp --dport 443 -j MASQUERADE
- /usr/sbin/iptables -t nat -A DOCKER ! -i docker0 -p tcp -m tcp --dport 443 -j DNAT --to-destination 172.17.0.2:443
-fi
+ build_iptables
+fi 
 ```
 最后执行`chmod +x autocheckdockerport.sh`修改脚本权限，并执行`crontab -e`设定定时任务如下，注意修改为你存放脚本的位置
 ```bash
